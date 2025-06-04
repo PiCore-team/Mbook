@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkBook</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: rgba(248, 249, 250, 0.85);
+            --bg-tertiary: #f5f5f7;
+            --bg-quaternary: #eeeeee;
+            --bg-glass: rgba(255, 255, 255, 0.75);
+            --text-primary: #1d1d1f;
+            --text-secondary: #515154;
+            --text-tertiary: #86868b;
+            --text-quaternary: #aeaeb2;
+            --accent: #007aff;
+            --accent-hover: #0051d0;
+            --accent-light: rgba(0, 122, 255, 0.08);
+            --success: #30d158;
+            --warning: #ff9500;
+            --error: #ff3b30;
+            --border-light: rgba(0, 0, 0, 0.06);
+            --border-medium: rgba(0, 0, 0, 0.1);
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-strong: 0 8px 25px rgba(0, 0, 0, 0.12);
+            --radius-small: 6px;
+            --radius-medium: 8px;
+            --radius-large: 12px;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Menlo', monospace;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: rgba(30, 30, 30, 0.85);
+            --bg-tertiary: #2a2a2a;
+            --bg-quaternary: #333333;
+            --bg-glass: rgba(30, 30, 30, 0.85);
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --text-tertiary: #909090;
+            --text-quaternary: #707070;
+            --border-light: rgba(255, 255, 255, 0.1);
+            --border-medium: rgba(255, 255, 255, 0.15);
+            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.6);
+            --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.7);
+            --shadow-strong: 0 16px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            font-weight: 400;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            font-size: 14px;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border-light);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-subtle);
+            z-index: 1000;
+            position: relative;
+            min-height: 44px;
+        }
+
+        .logo {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.3px;
+            user-select: none;
+        }
+
+        .logo::before {
+            content: "📖";
+            font-size: 18px;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .btn {
+            background: transparent;
+            border: none;
+            padding: 6px 12px;
+            border-radius: var(--radius-medium);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: -0.1px;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--text-primary);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: -1;
+            border-radius: inherit;
+        }
+
+        .btn:hover::before {
+            opacity: 0.05;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            box-shadow: var(--shadow-subtle);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: var(--shadow-medium);
+        }
+
+        /* Enhanced Tabs */
+        .tabs-container {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 16px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            box-shadow: var(--shadow-subtle);
+            position: relative;
+            z-index: 900;
+            min-height: 40px;
+        }
+
+        .tabs-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2px;
+            min-width: fit-content;
+            align-items: center;
+            height: 40px;
+        }
+
+        .tab {
+            background: transparent;
+            border: none;
+            padding: 8px 16px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-medium) var(--radius-medium) 0 0;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 200px;
+            position: relative;
+            letter-spacing: -0.1px;
+            user-select: none;
+            height: 32px;
+            flex-shrink: 0;
+            draggable: true;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .tab.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-medium);
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            transform: translateY(-0.5px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .tab.pinned {
+            border-left: 3px solid var(--warning);
+        }
+
+        .tab.pinned .tab-title::before {
+            content: "📌 ";
+            font-size: 10px;
+        }
+
+        .tab-icon {
+            font-size: 12px;
+            opacity: 0.7;
+            flex-shrink: 0;
+        }
+
+        .tab-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: inherit;
+            max-width: 140px;
+        }
+
+        .tab-close {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            padding: 2px;
+            border-radius: var(--radius-small);
+            transition: all 0.2s ease;
+            font-size: 14px;
+            line-height: 1;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+            flex-shrink: 0;
+        }
+
+        .tab-close:hover {
+            background: var(--bg-quaternary);
+            color: var(--text-primary);
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .tab-rename-input {
+            background: var(--bg-primary);
+            border: 1px solid var(--accent);
+            border-radius: var(--radius-small);
+            padding: 2px 6px;
+            font-size: 12px;
+            font-family: inherit;
+            color: var(--text-primary);
+            outline: none;
+            max-width: 140px;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-medium);
+            box-shadow: var(--shadow-strong);
+            padding: 8px;
+            min-width: 160px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .context-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-primary);
+            border-radius: var(--radius-small);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .context-item.danger {
+            color: var(--error);
+        }
+
+        .context-item.danger:hover {
+            background: rgba(255, 59, 48, 0.1);
+        }
+
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sidebar for File Explorer */
+        .sidebar {
+            width: 200px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-light);
+            overflow-y: auto;
+            box-shadow: var(--shadow-strong);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-content {
+            padding: 8px;
+        }
+
+        .file-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            border-radius: var(--radius-small);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 2px 0;
+        }
+
+        .file-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .file-item.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Editor Container */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: var(--bg-primary);
+        }
+
+        .editor-header {
+            background: var(--bg-primary);
+            padding: 16px 20px 12px 20px;
+            border-bottom: 1px solid var(--border-light);
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .editor-title {
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: inherit;
+            outline: none;
+            flex: 1;
+            letter-spacing: -0.3px;
+            line-height: 1.2;
+            transition: all 0.2s ease;
+        }
+
+        .editor-title::placeholder {
+            color: var(--text-quaternary);
+            font-weight: 600;
+        }
+
+        .editor-title:focus {
+            color: var(--accent);
+        }
+
+        .file-info {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-type-badge {
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 2px 6px;
+            border-radius: var(--radius-small);
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .editor-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .editor {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+            outline: none;
+            resize: none;
+            overflow-y: auto;
+            font-weight: 400;
+            letter-spacing: -0.1px;
+            transition: all 0.2s ease;
+        }
+
+        .editor::placeholder {
+            color: var(--text-quaternary);
+            font-family: var(--font-sans);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .editor:focus {
+            background: var(--accent-light);
+        }
+
+        /* Preview - Уменьшенные отступы */
+        .preview {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            border-left: 1px solid var(--border-light);
+            position: relative;
+        }
+
+        .preview h1, .preview h2, .preview h3, .preview h4, .preview h5, .preview h6 {
+            margin: 12px 0 6px 0;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .preview h1 { 
+            font-size: 24px; 
+            font-weight: 800;
+            margin-top: 0;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        .preview h2 { 
+            font-size: 20px; 
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .preview h3 { 
+            font-size: 18px; 
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .preview h4 { 
+            font-size: 16px; 
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .preview p {
+            margin: 12px 0;
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .preview code {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: var(--radius-small);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 500;
+            border: 1px solid var(--border-light);
+        }
+
+        .preview pre {
+            background: var(--bg-tertiary);
+            padding: 16px;
+            border-radius: var(--radius-large);
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid var(--border-medium);
+            box-shadow: var(--shadow-subtle);
+            position: relative;
+        }
+
+        .preview pre code {
+            background: none;
+            padding: 0;
+            border: none;
+            color: var(--text-primary);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .preview blockquote {
+            border-left: 3px solid var(--accent);
+            padding: 12px 0 12px 16px;
+            margin: 16px 0;
+            color: var(--text-secondary);
+            font-style: italic;
+            background: var(--accent-light);
+            border-radius: 0 var(--radius-medium) var(--radius-medium) 0;
+        }
+
+        .preview ul, .preview ol {
+            margin: 12px 0;
+            padding-left: 20px;
+        }
+
+        .preview li {
+            margin: 6px 0;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .preview strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .preview em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .preview a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .preview a:hover {
+            text-decoration: underline;
+        }
+
+        /* Settings Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .modal {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: var(--radius-large);
+            box-shadow: var(--shadow-strong);
+            width: 450px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-medium);
+        }
+
+        .modal-header {
+            padding: 20px 20px 12px 20px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.1px;
+        }
+
+        .setting-input, .setting-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-medium);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .setting-input:focus, .setting-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-light);
+        }
+
+        .setting-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+        }
+
+        .switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--bg-quaternary);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-medium);
+        }
+
+        .switch.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .switch-handle {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 9px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .switch.active .switch-handle {
+            transform: translateX(20px);
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-top: 1px solid var(--border-light);
+            padding: 6px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            min-height: 28px;
+        }
+
+        /* Mode Toggle */
+        .mode-toggle {
+            position: fixed;
+            top: 50%;
+            right: 16px;
+            transform: translateY(-50%);
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-large);
+            padding: 6px;
+            box-shadow: var(--shadow-strong);
+            z-index: 1500;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mode-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            border-radius: var(--radius-medium);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-secondary);
+            font-size: 14px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mode-btn.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Recent Files */
+        .recent-files {
+            padding: 8px 0;
+        }
+
+        .recent-file {
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recent-file:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                z-index: 1000;
+                height: 100%;
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-quaternary);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-tertiary);
+        }
+
+        /* Syntax highlighting for code */
+        .syntax-js { color: #f7df1e; }
+        .syntax-py { color: #3776ab; }
+        .syntax-html { color: #e34c26; }
+        .syntax-css { color: #1572b6; }
+        .syntax-md { color: var(--accent); }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header" id="header">
+        <div class="logo">MarkBook</div>
+        
+        <div class="header-controls">
+            <button class="btn" onclick="newFile()">Новый</button>
+            <button class="btn" onclick="openFile()">Открыть</button>
+            <button class="btn" onclick="saveFile()">Сохранить</button>
+            <button class="btn" onclick="saveAsFile()">Сохранить как</button>
+            <button class="btn" onclick="toggleSidebar()">📁</button>
+            <button class="btn" onclick="openSettings()">⚙️</button>
+            <button class="btn" onclick="toggleTheme()">🌓</button>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-container" id="tabsContainer">
+        <div class="tabs" id="tabs"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar for File Explorer -->
+        <div class="sidebar hidden" id="sidebar">
+            <div class="sidebar-header">
+                <span>Файлы</span>
+                <button class="btn" onclick="openFileInSidebar()" title="Открыть файл">📄</button>
+            </div>
+            <div class="sidebar-content">
+                <div class="recent-files" id="recentFiles"></div>
+            </div>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="editor-container">
+            <div class="editor-header">
+                <input type="text" class="editor-title" id="documentTitle" placeholder="Заголовок документа">
+                <div class="file-info">
+                    <span class="file-type-badge" id="fileTypeBadge">MD</span>
+                    <span id="filePath">Новый файл</span>
+                    <span id="fileSize">0 байт</span>
+                </div>
+            </div>
+            
+            <div class="editor-content">
+                <textarea 
+                    class="editor" 
+                    id="editor" 
+                    placeholder="Начните писать вашу историю..."
+                    spellcheck="false"
+                ></textarea>
+                
+                <div class="preview" id="preview" style="display: none;">
+                    <div id="previewContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode Toggle -->
+    <div class="mode-toggle">
+        <button class="mode-btn active" id="editBtn" onclick="setMode('edit')" title="Редактирование">✏️</button>
+        <button class="mode-btn" id="previewBtn" onclick="setMode('preview')" title="Предпросмотр">👁</button>
+        <button class="mode-btn" id="splitBtn" onclick="setMode('split')" title="Разделенный вид">📱</button>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <span id="statusText">Готов к работе</span>
+        <span id="quickStats">Слов: 0 | Символов: 0 | Строк: 0</span>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-item" onclick="pinTab()">
+            <span>📌</span>
+            <span>Закрепить</span>
+        </div>
+        <div class="context-item" onclick="renameTab()">
+            <span>✏️</span>
+            <span>Переименовать</span>
+        </div>
+        <div class="context-item" onclick="duplicateTab()">
+            <span>📄</span>
+            <span>Дублировать</span>
+        </div>
+        <div class="context-item" onclick="closeOtherTabs()">
+            <span>✖️</span>
+            <span>Закрыть остальные</span>
+        </div>
+        <div class="context-item danger" onclick="closeTab(contextTabId)">
+            <span>🗑️</span>
+            <span>Закрыть</span>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Настройки</h2>
+            </div>
+            <div class="modal-content">
+                <div class="setting-group">
+                    <label class="setting-label">Размер шрифта</label>
+                    <input type="range" class="setting-input" id="fontSizeSlider" min="10" max="24" value="14">
+                    <div style="text-align: center; margin-top: 6px; color: var(--text-secondary); font-size: 11px;">
+                        <span id="fontSizeValue">14px</span>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="setting-label">Шрифт редактора</label>
+                    <select class="setting-input setting-select" id="fontFamily">
+                        <option value="JetBrains Mono">JetBrains Mono</option>
+                        <option value="SF Mono">SF Mono</option>
+                        <option value="Monaco">Monaco</option>
+                        <option value="Menlo">Menlo</option>
+                        <option value="Consolas">Consolas</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-switch">
+                        <span class="setting-label">Автосохранение</span>
+                        <div class="switch" id="autoSaveSwitch" onclick="toggleAutoSave()">
+                            <div class="switch-handle"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-switch">
+                        <span class="setting-label">Перенос строк</span>
+                        <div class="switch active" id="wordWrapSwitch" onclick="toggleWordWrap()">
+                            <div class="switch-handle"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-switch">
+                        <span class="setting-label">Подсветка синтаксиса</span>
+                        <div class="switch active" id="syntaxHighlightSwitch" onclick="toggleSyntaxHighlight()">
+                            <div class="switch-handle"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-switch">
+                        <span class="setting-label">Номера строк</span>
+                        <div class="switch" id="lineNumbersSwitch" onclick="toggleLineNumbers()">
+                            <div class="switch-handle"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: right; margin-top: 24px;">
+                    <button class="btn btn-primary" onclick="closeSettings()">Готово</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let currentTabId = null;
+        let tabs = new Map();
+        let tabCounter = 0;
+        let currentMode = 'edit'; // edit, preview, split
+        let sidebarVisible = false;
+        let contextTabId = null;
+        let draggedTab = null;
+        let recentFiles = [];
+        let settings = {
+            fontSize: 14,
+            fontFamily: 'JetBrains Mono',
+            autoSave: false,
+            wordWrap: true,
+            syntaxHighlight: true,
+            lineNumbers: false,
+            theme: 'light'
+        };
+
+        // File type mappings
+        const fileTypes = {
+            '.js': { icon: '🟨', color: '#f7df1e', name: 'JS' },
+            '.py': { icon: '🐍', color: '#3776ab', name: 'PY' },
+            '.html': { icon: '🌐', color: '#e34c26', name: 'HTML' },
+            '.css': { icon: '🎨', color: '#1572b6', name: 'CSS' },
+            '.md': { icon: '📝', color: '#007aff', name: 'MD' },
+            '.txt': { icon: '📄', color: '#666666', name: 'TXT' },
+            '.json': { icon: '📋', color: '#ff9500', name: 'JSON' }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            loadRecentFiles();
+            newFile();
+            updateStats();
+            initTabEnhancements();
+            
+            // Auto-save every 30 seconds
+            setInterval(() => {
+                if (settings.autoSave && currentTabId) {
+                    saveCurrentFile();
+                }
+            }, 30000);
+
+            // Font size slider update
+            document.getElementById('fontSizeSlider').addEventListener('input', function() {
+                document.getElementById('fontSizeValue').textContent = this.value + 'px';
+            });
+        });
+
+        // Enhanced Tab Management
+        function createTab(title = 'Без названия', content = '', filePath = null, fileType = '.md') {
+            const tabId = `tab_${++tabCounter}`;
+            const typeInfo = fileTypes[fileType] || fileTypes['.md'];
+            
+            const tab = {
+                id: tabId,
+                title: title,
+                content: content,
+                isDirty: false,
+                filePath: filePath,
+                fileType: fileType,
+                isPinned: false,
+                typeInfo: typeInfo
+            };
+            
+            tabs.set(tabId, tab);
+            renderTabs();
+            switchToTab(tabId);
+            
+            // Focus editor after creation
+            setTimeout(() => {
+                const editor = document.getElementById('editor');
+                if (editor && !editor.disabled) {
+                    editor.focus();
+                }
+            }, 100);
+            
+            return tabId;
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tabs');
+            tabsContainer.innerHTML = '';
+            
+            tabs.forEach((tab, tabId) => {
+                const tabElement = document.createElement('div');
+                tabElement.className = `tab ${tabId === currentTabId ? 'active' : ''} ${tab.isPinned ? 'pinned' : ''}`;
+                tabElement.dataset.tabId = tabId;
+                tabElement.draggable = true;
+                
+                tabElement.innerHTML = `
+                    <span class="tab-icon">${tab.typeInfo.icon}</span>
+                    <span class="tab-title">${tab.title}${tab.isDirty ? ' •' : ''}</span>
+                    ${!tab.isPinned ? `<button class="tab-close" onclick="event.stopPropagation(); closeTab('${tabId}')">&times;</button>` : ''}
+                `;
+                
+                tabElement.onclick = (e) => {
+                    if (!e.target.classList.contains('tab-close')) {
+                        switchToTab(tabId);
+                    }
+                };
+                
+                tabElement.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    showContextMenu(e.pageX, e.pageY, tabId);
+                };
+                
+                tabsContainer.appendChild(tabElement);
+            });
+        }
+
+        // Fixed Mode Management
+        function setMode(mode) {
+            currentMode = mode;
+            const editor = document.getElementById('editor');
+            const preview = document.getElementById('preview');
+            const editBtn = document.getElementById('editBtn');
+            const previewBtn = document.getElementById('previewBtn');
+            const splitBtn = document.getElementById('splitBtn');
+            
+            // Reset button states
+            [editBtn, previewBtn, splitBtn].forEach(btn => btn.classList.remove('active'));
+            
+            switch(mode) {
+                case 'edit':
+                    editor.style.display = 'block';
+                    preview.style.display = 'none';
+                    editor.style.flex = '1';
+                    editor.disabled = false;
+                    editor.readOnly = false;
+                    editBtn.classList.add('active');
+                    break;
+                case 'preview':
+                    editor.style.display = 'none';
+                    preview.style.display = 'block';
+                    preview.style.flex = '1';
+                    editor.disabled = true;
+                    previewBtn.classList.add('active');
+                    updatePreview();
+                    break;
+                case 'split':
+                    editor.style.display = 'block';
+                    preview.style.display = 'block';
+                    editor.style.flex = '1';
+                    preview.style.flex = '1';
+                    editor.disabled = false;
+                    editor.readOnly = false;
+                    splitBtn.classList.add('active');
+                    updatePreview();
+                    break;
+            }
+        }
+
+        // Fixed Tab Switching
+        function switchToTab(tabId) {
+            if (currentTabId) {
+                saveTabContent();
+            }
+            
+            currentTabId = tabId;
+            const tab = tabs.get(tabId);
+            
+            if (!tab) return;
+            
+            const titleInput = document.getElementById('documentTitle');
+            const editor = document.getElementById('editor');
+            const fileTypeBadge = document.getElementById('fileTypeBadge');
+            const filePath = document.getElementById('filePath');
+            const fileSize = document.getElementById('fileSize');
+            
+            if (titleInput) titleInput.value = tab.title;
+            if (editor) {
+                editor.value = tab.content;
+                editor.disabled = (currentMode === 'preview');
+                editor.readOnly = (currentMode === 'preview');
+            }
+            
+            // Update file info
+            if (fileTypeBadge) {
+                fileTypeBadge.textContent = tab.typeInfo.name;
+                fileTypeBadge.style.backgroundColor = tab.typeInfo.color + '20';
+                fileTypeBadge.style.color = tab.typeInfo.color;
+            }
+            
+            if (filePath) {
+                filePath.textContent = tab.filePath || 'Новый файл';
+            }
+            
+            if (fileSize) {
+                const size = new Blob([tab.content]).size;
+                fileSize.textContent = formatFileSize(size);
+            }
+            
+            renderTabs();
+            updatePreview();
+            updateStats();
+            updateRecentFiles();
+            setStatus(`Открыт: ${tab.title}`);
+        }
+
+        function closeTab(tabId) {
+            const tab = tabs.get(tabId);
+            if (!tab) return;
+            
+            if (tab.isDirty) {
+                const shouldSave = confirm(`Сохранить изменения в "${tab.title}"?`);
+                if (shouldSave) {
+                    saveFile(tabId);
+                }
+            }
+            
+            tabs.delete(tabId);
+            
+            if (tabId === currentTabId) {
+                const remainingTabs = Array.from(tabs.keys());
+                if (remainingTabs.length > 0) {
+                    currentTabId = null;
+                    switchToTab(remainingTabs[0]);
+                } else {
+                    currentTabId = null;
+                    newFile();
+                    return;
+                }
+            }
+            
+            renderTabs();
+        }
+
+        function saveTabContent() {
+            if (!currentTabId) return;
+            
+            const tab = tabs.get(currentTabId);
+            if (!tab) return;
+            
+            const titleInput = document.getElementById('documentTitle');
+            const editor = document.getElementById('editor');
+            
+            const newTitle = titleInput ? titleInput.value || 'Без названия' : 'Без названия';
+            const newContent = editor ? editor.value : '';
+            
+            let hasChanges = false;
+            
+            if (tab.title !== newTitle) {
+                tab.title = newTitle;
+                hasChanges = true;
+            }
+            
+            if (tab.content !== newContent) {
+                tab.content = newContent;
+                hasChanges = true;
+            }
+            
+            if (hasChanges) {
+                tab.isDirty = true;
+                tabs.set(currentTabId, tab);
+                
+                // Update file size
+                const fileSize = document.getElementById('fileSize');
+                if (fileSize) {
+                    const size = new Blob([tab.content]).size;
+                    fileSize.textContent = formatFileSize(size);
+                }
+            }
+        }
+
+        // Enhanced File Operations
+        function newFile() {
+            createTab();
+            setStatus('Создан новый документ');
+        }
+
+        function openFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.md,.txt,.js,.py,.html,.css,.json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        const title = file.name.replace(/\.[^/.]+$/, "");
+                        const extension = '.' + file.name.split('.').pop().toLowerCase();
+                        
+                        // Store file path for saving
+                        const tabId = createTab(title, content, file.name, extension);
+                        const tab = tabs.get(tabId);
+                        tab.originalFile = file;
+                        tabs.set(tabId, tab);
+                        
+                        addToRecentFiles(file.name, extension);
+                        setStatus(`Открыт файл: ${file.name}`);
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        function saveFile(tabId = currentTabId) {
+            if (!tabId) return;
+            
+            saveTabContent();
+            const tab = tabs.get(tabId);
+            if (!tab) return;
+            
+            // If file has original path, save to the same location
+            if (tab.originalFile && tab.filePath) {
+                // In a real Electron app, we would use fs.writeFile here
+                // For now, just update the status and mark as clean
+                tab.isDirty = false;
+                tabs.set(tabId, tab);
+                renderTabs();
+                setStatus(`Сохранён: ${tab.title}`);
+                return;
+            }
+            
+            // Save as new file
+            const extension = tab.fileType || '.md';
+            const blob = new Blob([tab.content], { type: getContentType(extension) });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${tab.title}${extension}`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            // Mark as saved and update file path
+            tab.isDirty = false;
+            tab.filePath = `${tab.title}${extension}`;
+            tabs.set(tabId, tab);
+            renderTabs();
+            setStatus(`Сохранён: ${tab.title}${extension}`);
+        }
+
+        function saveAsFile() {
+            if (!currentTabId) return;
+            
+            saveTabContent();
+            const tab = tabs.get(currentTabId);
+            if (!tab) return;
+            
+            // Always save as new file, regardless of original path
+            const extension = tab.fileType || '.md';
+            const blob = new Blob([tab.content], { type: getContentType(extension) });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${tab.title}${extension}`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            tab.isDirty = false;
+            tabs.set(currentTabId, tab);
+            renderTabs();
+            setStatus(`Сохранён как: ${tab.title}${extension}`);
+        }
+
+        function getContentType(extension) {
+            const types = {
+                '.md': 'text/markdown',
+                '.txt': 'text/plain',
+                '.js': 'text/javascript',
+                '.py': 'text/python',
+                '.html': 'text/html',
+                '.css': 'text/css',
+                '.json': 'application/json'
+            };
+            return types[extension] || 'text/plain';
+        }
+
+        // Context Menu
+        function showContextMenu(x, y, tabId) {
+            contextTabId = tabId;
+            const menu = document.getElementById('contextMenu');
+            menu.style.display = 'block';
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+        }
+
+        function pinTab() {
+            if (!contextTabId) return;
+            const tab = tabs.get(contextTabId);
+            if (tab) {
+                tab.isPinned = !tab.isPinned;
+                tabs.set(contextTabId, tab);
+                renderTabs();
+            }
+            hideContextMenu();
+        }
+
+        function renameTab() {
+            if (!contextTabId) return;
+            const tabElement = document.querySelector(`[data-tab-id="${contextTabId}"]`);
+            const titleSpan = tabElement.querySelector('.tab-title');
+            const tab = tabs.get(contextTabId);
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = tab.title;
+            input.className = 'tab-rename-input';
+            
+            titleSpan.replaceWith(input);
+            input.focus();
+            input.select();
+            
+            function finishRename() {
+                tab.title = input.value || 'Без названия';
+                tabs.set(contextTabId, tab);
+                renderTabs();
+            }
+            
+            input.addEventListener('blur', finishRename);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    finishRename();
+                }
+            });
+            
+            hideContextMenu();
+        }
+
+        function duplicateTab() {
+            if (!contextTabId) return;
+            const tab = tabs.get(contextTabId);
+            if (tab) {
+                createTab(tab.title + ' (копия)', tab.content, null, tab.fileType);
+            }
+            hideContextMenu();
+        }
+
+        function closeOtherTabs() {
+            const tabsToClose = Array.from(tabs.keys()).filter(id => id !== contextTabId);
+            tabsToClose.forEach(id => closeTab(id));
+            hideContextMenu();
+        }
+
+        // Tab Enhancements
+        function initTabEnhancements() {
+            const tabsContainer = document.getElementById('tabs');
+            
+            // Drag and drop
+            tabsContainer.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('tab')) {
+                    draggedTab = e.target;
+                    e.dataTransfer.effectAllowed = 'move';
+                }
+            });
+            
+            tabsContainer.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const target = e.target.closest('.tab');
+                if (target && target !== draggedTab) {
+                    const rect = target.getBoundingClientRect();
+                    const next = (e.clientX - rect.left) / rect.width > 0.5;
+                    tabsContainer.insertBefore(draggedTab, next ? target.nextSibling : target);
+                }
+            });
+            
+            tabsContainer.addEventListener('dragend', () => {
+                if (draggedTab) {
+                    updateTabsOrder();
+                    draggedTab = null;
+                }
+            });
+            
+            // Double click to rename
+            tabsContainer.addEventListener('dblclick', (e) => {
+                const tab = e.target.closest('.tab');
+                if (tab) {
+                    contextTabId = tab.dataset.tabId;
+                    renameTab();
+                }
+            });
+        }
+
+        function updateTabsOrder() {
+            const tabElements = document.querySelectorAll('.tab');
+            const newTabs = new Map();
+            
+            tabElements.forEach(element => {
+                const tabId = element.dataset.tabId;
+                if (tabs.has(tabId)) {
+                    newTabs.set(tabId, tabs.get(tabId));
+                }
+            });
+            
+            tabs = newTabs;
+        }
+
+        // Recent Files
+        function addToRecentFiles(fileName, extension) {
+            const fileInfo = {
+                name: fileName,
+                extension: extension,
+                timestamp: Date.now()
+            };
+            
+            recentFiles = recentFiles.filter(f => f.name !== fileName);
+            recentFiles.unshift(fileInfo);
+            recentFiles = recentFiles.slice(0, 10); // Keep only 10 recent files
+            
+            saveRecentFiles();
+            updateRecentFiles();
+        }
+
+        function updateRecentFiles() {
+            const container = document.getElementById('recentFiles');
+            if (!container) return;
+            
+            container.innerHTML = '<div style="padding: 8px 16px; font-size: 11px; color: var(--text-tertiary); font-weight: 600;">НЕДАВНИЕ ФАЙЛЫ</div>';
+            
+            recentFiles.forEach(file => {
+                const typeInfo = fileTypes[file.extension] || fileTypes['.txt'];
+                const item = document.createElement('div');
+                item.className = 'recent-file';
+                item.innerHTML = `
+                    <span>${typeInfo.icon}</span>
+                    <span>${file.name}</span>
+                `;
+                item.onclick = () => openRecentFile(file);
+                container.appendChild(item);
+            });
+        }
+
+        function openRecentFile(fileInfo) {
+            // In a real app, we would read the file from disk
+            // For now, just create a new tab with the file name
+            const extension = fileInfo.extension;
+            createTab(fileInfo.name.replace(extension, ''), '', fileInfo.name, extension);
+            setStatus(`Открыт недавний файл: ${fileInfo.name}`);
+        }
+
+        function loadRecentFiles() {
+            const stored = localStorage.getItem('markbook-recent-files');
+            if (stored) {
+                recentFiles = JSON.parse(stored);
+            }
+        }
+
+        function saveRecentFiles() {
+            localStorage.setItem('markbook-recent-files', JSON.stringify(recentFiles));
+        }
+
+        // UI Functions
+        function toggleSidebar() {
+            sidebarVisible = !sidebarVisible;
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden', !sidebarVisible);
+            if (sidebarVisible) {
+                updateRecentFiles();
+            }
+        }
+
+        function openFileInSidebar() {
+            openFile();
+        }
+
+        function toggleTheme() {
+            settings.theme = settings.theme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', settings.theme);
+            saveSettings();
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+            loadSettingsToUI();
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+            saveSettingsFromUI();
+            applySettings();
+        }
+
+        // Settings Management
+        function loadSettings() {
+            const stored = localStorage.getItem('markbook-settings');
+            if (stored) {
+                settings = { ...settings, ...JSON.parse(stored) };
+            }
+            applySettings();
+        }
+
+        function saveSettings() {
+            localStorage.setItem('markbook-settings', JSON.stringify(settings));
+        }
+
+        function loadSettingsToUI() {
+            document.getElementById('fontSizeSlider').value = settings.fontSize;
+            document.getElementById('fontSizeValue').textContent = settings.fontSize + 'px';
+            document.getElementById('fontFamily').value = settings.fontFamily;
+            document.getElementById('autoSaveSwitch').classList.toggle('active', settings.autoSave);
+            document.getElementById('wordWrapSwitch').classList.toggle('active', settings.wordWrap);
+            document.getElementById('syntaxHighlightSwitch').classList.toggle('active', settings.syntaxHighlight);
+            document.getElementById('lineNumbersSwitch').classList.toggle('active', settings.lineNumbers);
+        }
+
+        function saveSettingsFromUI() {
+            settings.fontSize = parseInt(document.getElementById('fontSizeSlider').value);
+            settings.fontFamily = document.getElementById('fontFamily').value;
+            saveSettings();
+        }
+
+        function applySettings() {
+            const editor = document.getElementById('editor');
+            if (editor) {
+                editor.style.fontSize = settings.fontSize + 'px';
+                editor.style.fontFamily = `"${settings.fontFamily}", var(--font-mono)`;
+                editor.style.whiteSpace = settings.wordWrap ? 'pre-wrap' : 'pre';
+            }
+            
+            document.body.setAttribute('data-theme', settings.theme);
+        }
+
+        function toggleAutoSave() {
+            settings.autoSave = !settings.autoSave;
+            document.getElementById('autoSaveSwitch').classList.toggle('active', settings.autoSave);
+            saveSettings();
+        }
+
+        function toggleWordWrap() {
+            settings.wordWrap = !settings.wordWrap;
+            document.getElementById('wordWrapSwitch').classList.toggle('active', settings.wordWrap);
+            applySettings();
+            saveSettings();
+        }
+
+        function toggleSyntaxHighlight() {
+            settings.syntaxHighlight = !settings.syntaxHighlight;
+            document.getElementById('syntaxHighlightSwitch').classList.toggle('active', settings.syntaxHighlight);
+            saveSettings();
+        }
+
+        function toggleLineNumbers() {
+            settings.lineNumbers = !settings.lineNumbers;
+            document.getElementById('lineNumbersSwitch').classList.toggle('active', settings.lineNumbers);
+            saveSettings();
+        }
+
+        // Enhanced Markdown Processing
+        function updatePreview() {
+            if (currentMode === 'edit') return;
+            
+            const editor = document.getElementById('editor');
+            const content = editor ? editor.value : '';
+            const html = parseMarkdown(content);
+            const previewContent = document.getElementById('previewContent');
+            if (previewContent) {
+                previewContent.innerHTML = html;
+            }
+        }
+
+        function parseMarkdown(markdown) {
+            let html = markdown;
+            
+            // Code blocks with language support
+            html = html.replace(/``````/g, (match, lang, code) => {
+                const language = lang ? ` data-language="${lang}" class="syntax-${lang}"` : '';
+                return `<pre${language}><code>${escapeHtml(code.trim())}</code></pre>`;
+            });
+            
+            // Inline code
+            html = html.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+            
+            // Headers
+            html = html.replace(/^#### (.*$)/gm, '<h4>$1</h4>');
+            html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+            html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+            
+            // Bold, italic
+            html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Links
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+            
+            // Blockquotes
+            html = html.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>');
+            
+            // Lists
+            html = html.replace(/^\* (.*$)/gm, '<li>$1</li>');
+            html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+            html = html.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
+            
+            // Wrap consecutive <li> in <ul>
+            html = html.replace(/(<li>.*<\/li>)/gs, (match) => {
+                if (!match.includes('<ul>')) {
+                    return '<ul>' + match + '</ul>';
+                }
+                return match;
+            });
+            
+            // Line breaks
+            html = html.replace(/\n\n/g, '</p><p>');
+            html = html.replace(/\n/g, '<br>');
+            
+            // Wrap in paragraphs
+            if (html && !html.match(/^<(h[1-6]|div|p|ul|ol|blockquote|pre)/)) {
+                html = '<p>' + html + '</p>';
+            }
+            
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Stats and Status
+        function updateStats() {
+            const editor = document.getElementById('editor');
+            const content = editor ? editor.value : '';
+            const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const chars = content.length;
+            const lines = content.split('\n').length;
+            
+            const quickStats = document.getElementById('quickStats');
+            if (quickStats) {
+                quickStats.textContent = `Слов: ${words} | Символов: ${chars} | Строк: ${lines}`;
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 байт';
+            const k = 1024;
+            const sizes = ['байт', 'КБ', 'МБ', 'ГБ'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function setStatus(message) {
+            const statusText = document.getElementById('statusText');
+            if (statusText) {
+                statusText.textContent = message;
+                statusText.style.color = 'var(--accent)';
+                
+                setTimeout(() => {
+                    statusText.textContent = 'Готов к работе';
+                    statusText.style.color = 'var(--text-secondary)';
+                }, 3000);
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            const editor = document.getElementById('editor');
+            const documentTitle = document.getElementById('documentTitle');
+            
+            if (editor) {
+                editor.addEventListener('input', function() {
+                    handleContentChange();
+                });
+            }
+            
+            if (documentTitle) {
+                documentTitle.addEventListener('input', function() {
+                    if (currentTabId) {
+                        saveTabContent();
+                        renderTabs();
+                    }
+                });
+            }
+        }
+
+        function handleContentChange() {
+            if (currentTabId) {
+                const tab = tabs.get(currentTabId);
+                if (tab) {
+                    tab.isDirty = true;
+                    tabs.set(currentTabId, tab);
+                    renderTabs();
+                }
+            }
+            updateStats();
+            updatePreview();
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+        });
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'n':
+                        e.preventDefault();
+                        newFile();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        openFile();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        if (e.shiftKey) {
+                            saveAsFile();
+                        } else {
+                            saveCurrentFile();
+                        }
+                        break;
+                    case ',':
+                        e.preventDefault();
+                        openSettings();
+                        break;
+                    case '1':
+                        e.preventDefault();
+                        setMode('edit');
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        setMode('preview');
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        setMode('split');
+                        break;
+                    case 'w':
+                        e.preventDefault();
+                        if (currentTabId && tabs.size > 1) {
+                            closeTab(currentTabId);
+                        }
+                        break;
+                    case 'b':
+                        e.preventDefault();
+                        toggleSidebar();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('settingsModal');
+                if (modal && modal.style.display === 'flex') {
+                    closeSettings();
+                }
+                hideContextMenu();
+            }
+        });
+
+        // Click outside to close menus
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.context-menu')) {
+                hideContextMenu();
+            }
+            
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal && e.target === settingsModal) {
+                closeSettings();
+            }
+        });
+
+        function saveCurrentFile() {
+            if (currentTabId) {
+                saveFile(currentTabId);
+            }
+        }
+
+        // Initialize the app
+        setTimeout(() => {
+            setupEventListeners();
+        }, 100);
+    </script>
+</body>
+</html>
